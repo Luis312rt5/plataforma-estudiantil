@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hogar Infantil · Plataforma Kids</title>
+<style>
+:root{--bg:#EEF5FF;--ink:#1B2A4A;--sun:#FFC233;--leaf:#2DB37A;--coral:#FF6B5B;--card:#fff;--line:#C9D8F0}
+@media (prefers-color-scheme:dark){:root{--bg:#121B2E;--ink:#EEF3FF;--card:#1C2842;--line:#33466B}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.5 "Trebuchet MS","Segoe UI",system-ui,sans-serif}
+main{max-width:760px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:2rem;margin:.2em 0}h2{font-size:1.3rem}
+button{font:inherit;cursor:pointer;border:0;border-radius:16px;padding:12px 20px;background:var(--sun);color:#1B2A4A;font-weight:700}
+button.ghost{background:transparent;color:var(--ink);border:2px solid var(--line)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--leaf);outline-offset:2px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:14px}
+.big{font-size:3rem;font-weight:800;color:var(--ink);line-height:1.2;padding:18px;border-radius:24px;background:var(--card);border:3px solid var(--line)}
+.kid{text-align:center}.kid .big{display:block;width:100%}
+.dots{display:flex;gap:12px;justify-content:center;margin:16px 0}
+.dots i{width:22px;height:22px;border-radius:50%;border:3px solid var(--ink)}.dots i.on{background:var(--leaf);border-color:var(--leaf)}
+.card{background:var(--card);border:2px solid var(--line);border-radius:20px;padding:18px;margin:16px 0}
+label{display:block;margin:10px 0 4px;font-weight:700}
+input,select{width:100%;font:inherit;padding:10px 12px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--ink)}
+.row{display:flex;gap:12px;flex-wrap:wrap}.row>*{flex:1 1 200px}
+.err{color:var(--coral);font-weight:700;min-height:1.5em}
+table{width:100%;border-collapse:collapse}td,th{text-align:left;padding:8px;border-bottom:1px solid var(--line)}
+.pin{font-size:3rem;letter-spacing:.2em}
+.hide{display:none}
+@media print{body *{visibility:hidden}#pincard,#pincard *{visibility:visible}#pincard{position:absolute;left:0;top:0}}
+
+:root{--bg2:#FFF3D6}
+@media (prefers-color-scheme:dark){:root{--bg2:#1B2A4A}}
+body{background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%) fixed}
+.hero{text-align:center;padding:12px 0 8px}
+.hero h1{font-size:clamp(2.2rem,8vw,3.4rem);font-weight:900;margin:0;letter-spacing:-.5px}
+.hero h1 b:nth-child(1){color:#E5483A}.hero h1 b:nth-child(2){color:#3566D6}
+.hero p{font-size:1.3rem;margin:.3em 0 0}
+.deco{font-size:2.2rem;letter-spacing:.35em}
+.groups{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-top:20px}
+.grp{display:flex;flex-direction:column;align-items:center;gap:6px;padding:28px 16px;border-radius:28px;color:#fff;font-size:1.6rem;font-weight:800;box-shadow:0 6px 0 rgba(0,0,0,.18);transition:transform .1s}
+.grp:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.18)}
+.grp span{font-size:3rem}
+.g0{background:#E5483A}.g1{background:#1F8F5F}.g2{background:#FFC233;color:#1B2A4A}.g3{background:#3566D6}.g4{background:#8E44C7}
+.tlink{position:fixed;top:10px;right:10px;font-size:.85rem;padding:6px 12px;border-radius:12px;opacity:.75;z-index:5}
+.kid .big{box-shadow:0 5px 0 rgba(0,0,0,.12)}
+</style></head><body><main>
+
+<!-- NIÑOS -->
+<section id="kids">
+  <button class="ghost tlink" id="tlink" onclick="show('staff')">🔒 Docentes</button>
+  <div class="hero">
+    <div class="deco" aria-hidden="true">🌈 ⭐ 🎈</div>
+    <h1 id="ktitle"><b>¡Hola,</b> <b>amiguito!</b></h1>
+    <p id="ksub">Toca tu salón para empezar</p>
+  </div>
+  <div id="groups" class="groups"></div>
+  <p style="text-align:center"><button class="ghost hide" id="kback" onclick="backToGroups()">⬅ Cambiar de salón</button></p>
+  <div id="kidlist" class="grid" style="margin-top:20px"></div>
+  <div id="pinpad" class="hide">
+    <h2 id="pinwho" style="text-align:center"></h2>
+    <div class="dots" id="dots"></div>
+    <div class="grid" id="keys"></div>
+    <p class="err" id="kerr" style="text-align:center"></p>
+    <button class="ghost" onclick="backToKids()">Volver</button>
+  </div>
+  <div id="welcome" class="hide" style="text-align:center">
+    <div class="big" id="wav" style="display:inline-block"></div>
+    <h1 id="wname"></h1><div id="stars" style="font-size:1.6rem"></div><div id="game"></div>
+    <p><button class="ghost" onclick="location.reload()">Salir</button></p>
+  </div>
+</section>
+
+<!-- DOCENTES -->
+<section id="staff" class="hide">
+  <h1>Panel del hogar infantil</h1>
+  <form id="login" class="card" onsubmit="return staffLogin(event)">
+    <label>Correo</label><input id="em" type="email" required>
+    <label>Contraseña</label><input id="pw" type="password" required>
+    <p class="err" id="serr"></p><button>Entrar</button>
+    <button type="button" class="ghost" onclick="show('kids')">Volver</button>
+  </form>
+
+  <div id="panel" class="hide">
+    <form class="card row" onsubmit="return addGroup(event)">
+      <div><label>Nuevo grupo</label><input id="gname" placeholder="Ej: Jardín" required></div>
+      <div style="align-self:end"><button>Crear grupo</button></div>
+    </form>
+
+    <div class="card"><h2>Grupos</h2><table id="glist"></table></div>
+
+    <form class="card" onsubmit="return addChild(event)">
+      <h2>Registrar niño o niña</h2>
+      <div class="row">
+        <div><label>Nombres</label><input id="fn" required></div>
+        <div><label>Apellidos</label><input id="ln" required></div>
+        <div><label>Fecha de nacimiento</label><input id="bd" type="date" required></div>
+        <div><label>Documento</label><input id="doc"></div>
+        <div><label>Grupo</label><select id="gid" required></select></div>
+        <div><label>EPS</label><input id="eps"></div>
+      </div>
+      <label>Alergias o condiciones médicas</label><input id="all">
+      <h2>Acudiente principal</h2>
+      <div class="row">
+        <div><label>Nombre completo</label><input id="gn" required></div>
+        <div><label>Parentesco</label><input id="gr" required></div>
+        <div><label>Teléfono</label><input id="gp" required></div>
+        <div><label>Correo</label><input id="ge" type="email"></div>
+      </div>
+      <label><input type="checkbox" id="c1" style="width:auto"> Los padres autorizan el tratamiento de datos personales (Ley 1581 de 2012)</label>
+      <label><input type="checkbox" id="c2" style="width:auto"> Autorizan el uso de fotografías</label>
+      <p class="err" id="rerr"></p><button>Registrar y generar PIN</button>
+    </form>
+
+    <div id="pincard" class="card hide" style="text-align:center">
+      <div class="big" id="pav" style="display:inline-block"></div>
+      <h2 id="pname"></h2><div class="pin" id="ppin"></div>
+      <p>Guarda este PIN: no se vuelve a mostrar. Si se olvida, se genera uno nuevo.</p>
+      <button onclick="print()">Imprimir tarjeta</button>
+    </div>
+
+    <h2>Niños registrados</h2>
+    <div class="card"><table id="tbl"></table></div>
+  </div>
+</section>
+
+<script src="games.js"></script>
+<script>
+let token=null, groups=[], symbols=[], pin='', kid=null;
+const $=id=>document.getElementById(id);
+const show=s=>{$('kids').classList.toggle('hide',s!=='kids');$('staff').classList.toggle('hide',s!=='staff')};
+async function api(p,m='GET',b){
+  const r=await fetch('/api/'+p,{method:m,headers:{'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})},body:b?JSON.stringify(b):undefined});
+  if(!r.ok){if(r.status===401)throw new Error('Datos incorrectos');const t=await r.text();let m=t;try{m=JSON.parse(t).message||t}catch{}throw new Error(m||'Error')}
+  return r.headers.get('content-length')==='0'?null:r.json().catch(()=>null);
+}
+async function init(){
+  symbols=await api('public/symbols'); groups=await api('public/groups');
+  const em=['🌈','🚀','🦋','🌻','🐳'];
+  $('groups').innerHTML=groups.map((g,i)=>`<button class="grp g${i%5}" onclick="pickGroup(${g.Id??g.id})"><span>${em[i%5]}</span>${g.Name??g.name}</button>`).join('');
+}
+async function pickGroup(id){
+  const ks=await api('public/groups/'+id+'/kids');
+  $('groups').classList.add('hide');$('kback').classList.remove('hide');
+  $('ktitle').innerHTML='<b>¿Quién</b> <b>eres?</b>';$('ksub').textContent='Toca tu dibujo';
+  $('kidlist').innerHTML=ks.length?ks.map(k=>`<div class="kid"><button class="big" onclick='pickKid(${JSON.stringify(k)})' aria-label="${k.firstName}">${k.avatar}</button>${k.firstName}</div>`).join(''):'<p>Todavía no hay niños en este grupo.</p>';
+}
+function pickKid(k){kid=k;pin='';$('kidlist').classList.add('hide');$('kback').classList.add('hide');$('ksub').textContent='';$('pinpad').classList.remove('hide');
+  $('pinwho').textContent=k.avatar+' '+k.firstName+', toca tu secreto';
+  $('keys').innerHTML=symbols.map((s,i)=>`<button class="big" onclick="tap(${i})">${s}</button>`).join('');drawDots();$('kerr').textContent='';}
+function backToKids(){pin='';$('pinpad').classList.add('hide');$('kidlist').classList.remove('hide');$('kback').classList.remove('hide');$('ksub').textContent='Toca tu dibujo'}
+function backToGroups(){$('kidlist').innerHTML='';$('groups').classList.remove('hide');$('kback').classList.add('hide');$('ktitle').innerHTML='<b>¡Hola,</b> <b>amiguito!</b>';$('ksub').textContent='Toca tu salón para empezar'}
+function drawDots(){$('dots').innerHTML=[0,1,2,3].map(i=>`<i class="${i<pin.length?'on':''}"></i>`).join('')}
+async function tap(i){
+  pin+=i;drawDots();if(pin.length<4)return;
+  try{const r=await api('auth/child','POST',{childId:kid.id,pin});token=r.token;
+    $('pinpad').classList.add('hide');$('welcome').classList.remove('hide');$('wav').textContent=r.avatar;$('wname').textContent='¡Hola, '+r.name+'!';startPlay();$('tlink').classList.add('hide');$('ktitle').parentNode.classList.add('hide');}
+  catch(x){pin='';drawDots();$('kerr').textContent=x.message.startsWith('Espera')?'Descansa un ratito y vuelve a intentarlo más tarde.':'Ese no es tu secreto. ¡Inténtalo otra vez!'}
+}
+async function staffLogin(e){e.preventDefault();
+  try{const r=await api('auth/staff','POST',{email:$('em').value,password:$('pw').value});token=r.token;
+    $('login').classList.add('hide');$('panel').classList.remove('hide');loadStaff();}
+  catch(x){$('serr').textContent=x.message}return false}
+async function loadStaff(){
+  groups=await api('public/groups');
+  $('gid').innerHTML=groups.map(g=>`<option value="${g.Id??g.id}">${g.Name??g.name}</option>`).join('');
+  $('glist').innerHTML=groups.map(g=>`<tr><td>${g.Name??g.name}</td><td style="text-align:right"><button class="ghost" onclick="renameGroup(${g.Id??g.id},decodeURIComponent('${encodeURIComponent(g.Name??g.name)}'))">Renombrar</button> <button class="ghost" onclick="delGroup(${g.Id??g.id})">Eliminar</button></td></tr>`).join('');
+  const pr={};(await api('staff/progress')).forEach(p=>pr[p.childId]=p.stars);
+  const cs=await api('staff/children?active=true');
+  $('tbl').innerHTML='<tr><th></th><th>Nombre</th><th>⭐</th><th>Acudiente</th><th></th></tr>'+cs.map(c=>`<tr><td>${c.avatar}</td><td>${c.firstName} ${c.lastName}</td><td>${pr[c.id]??0}</td><td>${c.guardians[0]?.fullName??''} ${c.guardians[0]?.phone??''}</td>
+   <td><button class="ghost" onclick="resetPin(${c.id})">Nuevo PIN</button> <button class="ghost" onclick="retire(${c.id})">Retirar</button></td></tr>`).join('');
+}
+async function addGroup(e){e.preventDefault();await api('staff/groups','POST',{name:$('gname').value});$('gname').value='';loadStaff();return false}
+async function addChild(e){e.preventDefault();$('rerr').textContent='';
+  try{const r=await api('staff/children','POST',{firstName:$('fn').value,lastName:$('ln').value,birthDate:$('bd').value,documentId:$('doc').value||null,groupId:+$('gid').value,
+    allergies:$('all').value||null,eps:$('eps').value||null,dataConsent:$('c1').checked,photoConsent:$('c2').checked,
+    guardians:[{fullName:$('gn').value,relation:$('gr').value,phone:$('gp').value,email:$('ge').value||null,canPickUp:true}]});
+    showPin(r);e.target.reset();loadStaff();}catch(x){$('rerr').textContent=x.message}return false}
+function showPin(r){$('pincard').classList.remove('hide');$('pav').textContent=r.avatar;$('pname').textContent=r.firstName;$('ppin').textContent=r.pin;$('pincard').scrollIntoView()}
+async function renameGroup(id,old){const n=prompt('Nuevo nombre del grupo',old);if(n&&n.trim()){await api('staff/groups/'+id,'PUT',{name:n.trim()});loadStaff()}}
+async function delGroup(id){if(!confirm('¿Eliminar este grupo?'))return;try{await api('staff/groups/'+id,'DELETE');loadStaff()}catch(x){alert(x.message)}}
+async function resetPin(id){if(confirm('¿Generar un PIN nuevo?'))showPin(await api('staff/children/'+id+'/reset-pin','POST'))}
+async function retire(id){if(confirm('¿Retirar a este niño? Se conserva su historial.')){await api('staff/children/'+id+'/retire','POST');loadStaff()}}
+init();
+</script></main></body></html>
